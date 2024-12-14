@@ -1,10 +1,12 @@
 const express = require("express");
+require("dotenv").config()
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
-const JWT_SECRET = "passispass";
+const JWT_SECRET = process.env.JWT_SECRET
 
 const app = express();
 app.use(cors());
+app.use(express.static("public"));
 app.use(express.json());
 
 let users = [];
@@ -37,11 +39,9 @@ app.post("/signup", function (req, res) {
 });
 
 app.post("/signin", function (req, res) {
-  const username = req.body.username?.trim();
-  const password = req.body.password?.trim();
+  const username = req.body.username
+  const password = req.body.password
 
-  console.log("Users list:", users);
-  console.log("Attempted login with:", req.body);
 
   const user = users.find(
       user => user.username === username && user.password === password
@@ -51,13 +51,24 @@ app.post("/signin", function (req, res) {
       console.log("Login failed: No matching user found");
       return res.status(401).send({ message: "Invalid username or password" });
   }
-
+  else{
   const token = jwt.sign({ username: username }, JWT_SECRET);
+  user.token = token
+  console.log(users)
   res.send({ token, message: "Sign-in successful" });
+  }
 });
 
 
-app.get("/mytodo", function (req, res) {});
+app.get("/mytodo", function (req, res) {
+  const token = req.headers.token
+  
+  const userDetails = jwt.verify(token,JWT_SECRET)
+  const user = userDetails.username
+  res.send({
+    message:"your name was " + userDetails.username
+  })
+});
 
 app.post("/save", function (req, res) {});
 
