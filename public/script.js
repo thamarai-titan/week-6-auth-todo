@@ -44,5 +44,21 @@ async function signin() {
     },
   });
   const mytodos = await mytodo.json()
+  
   document.getElementById("my-todo").innerHTML = mytodos.message;
+}
+
+async function addTodo(){
+  const todo = document.getElementById("todo-input").value
+
+  const response = await fetch('http://localhost:3000/savetodo',{
+    method:"Post",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      todo:todo
+    })
+
+  })
 }
